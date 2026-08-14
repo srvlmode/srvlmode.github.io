@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>srvlmode - Games</title>
+</head>
+
+<body>
+
+<h1>srvlmode - Games</h1>
+
+<hr>
+
+<p>
+    <span id="status">Loading games...</span>
+</p>
+
+<ul id="games"></ul>
+
+<hr>
+
+<p>
+    <a href="/">Home</a>
+</p>
+
+<script>
+
+async function loadGames() {
+
+    const status = document.getElementById("status");
+    const list = document.getElementById("games");
+
+    try {
+
+        /*
+         * Cache umgehen.
+         */
+        const response = await fetch(
+            "games.json?time=" + Date.now(),
+            {
+                cache: "no-store"
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(
+                "games.json returned " + response.status
+            );
+        }
+
+        const files = await response.json();
+
+        if (!Array.isArray(files)) {
+            throw new Error("games.json is not an array");
+        }
+
+        /*
+         * Sortieren
+         */
+        files.sort((a, b) =>
+            a.localeCompare(
+                b,
+                undefined,
+                {
+                    numeric: true,
+                    sensitivity: "base"
+                }
+            )
+        );
+
+        /*
+         * Status
+         */
+        status.textContent =
+            files.length + " games found.";
+
+        /*
+         * ALLE Games anzeigen
+         */
+        list.innerHTML = "";
+
+        for (const file of files) {
+
+            const li =
+                document.createElement("li");
+
+            const link =
+                document.createElement("a");
+
+            link.href =
+                "files/" +
+                file
+                    .split("/")
+                    .map(part =>
+                        encodeURIComponent(part)
+                    )
+                    .join("/");
+
+            link.textContent =
+                file
+                    .replace(/\.(html|htm)$/i, "")
+                    .replace(/[_-]/g, " ");
+
+            li.appendChild(link);
+
+            list.appendChild(li);
+        }
+
+        console.log(
+            "Loaded games:",
+            files.length
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        status.textContent =
+            "Error: " + error.message;
+    }
+}
+
+loadGames();
+
+</script>
+
+</body>
+</html>
