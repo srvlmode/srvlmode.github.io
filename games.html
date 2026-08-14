@@ -86,15 +86,14 @@ async function loadGames() {
 
             const link =
                 document.createElement("a");
-
-            link.href =
-                "files/" +
-                file
-                    .split("/")
-                    .map(part =>
-                        encodeURIComponent(part)
-                    )
-                    .join("/");
+link.href =
+    "offline/" +
+    file
+        .split("/")
+        .map(part =>
+            encodeURIComponent(part)
+        )
+        .join("/");
 
             link.textContent =
                 file
